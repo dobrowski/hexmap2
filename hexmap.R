@@ -100,3 +100,36 @@ hexplot <- tm_shape(resulthex) +
 tmap_arrange(rawplot, hexplot,  nrow = 2)
 
     
+####  Alt mapping version instead of tmap
+
+
+
+# generate plot
+plot_2 <- ggplot(resulthex, aes(long.x,
+                                lat.x,
+                                fill=Value,
+                                group=group)) +
+    geom_polygon(col="white") +
+    scale_fill_viridis(option="magma") +
+    coord_equal() + theme_void()
+
+# arrange plot with comparison to the original
+grid.arrange(plot_1, plot_2, nrow=1, ncol=2)
+
+
+
+ggplot(resulthex, aes(long.x,
+                      lat.x,
+                      fill=Value,
+                      group=group)) +
+    geom_polygon(col="white") +
+    geom_text(aes(V1,V2, label = substr(lad16nm,1,4)), size=3,color = "white") +
+    scale_fill_viridis(option="magma",
+                       begin = 0, end = 0.9,
+                       name = "Male Life Expectancy at Birth") +
+    coord_equal() + theme_void()+theme(legend.position="bottom") +
+    guides(fill = guide_legend(title.position = "top")) +
+    labs(title="Male Life Expectancy in the South East Region of England")
+
+
+
