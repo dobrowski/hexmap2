@@ -59,24 +59,13 @@ outside_names <- "Reef|Coal|Pajar|Aroma|Shan|Not D|Coast|Paso|Bitter|Pleas|Cien|
      filter(row_n != 23)
 
 
-# monterey_districts <- districts[st_contains(monterey_tracts, districts, sparse = FALSE),] %>%
-#     rbind(districts %>% filter(str_detect(NAME, "South Monter") )  ) %>%
-#     st_intersection(monterey_tracts) %>%
-#     filter(FUNCSTAT == "E") %>%  
-#     mutate(elem = if_else(LOGRADE == "KG",1,0),
-#            high = if_else(HIGRADE == "12",1,0) ) %>% 
-#     st_collection_extract("POLYGON")  # To address error cause by two intersections 
-# 
-
-
-# ----------
+#### Create the hexgrid from set of districts. 
     
-
-
-
 original_shapes <- monterey_districts
-original_shapes$SNAME <- substr(original_shapes$NAME, 1, 6)
+original_shapes$SNAME <- substr(original_shapes$NAME, 1, 6)  # make abbreviations to fit on map
 
+
+# To look at original look of map
 
 rawplot <- tm_shape(original_shapes) + 
     tm_polygons("ALAND", palette = "viridis") +
@@ -84,6 +73,7 @@ rawplot <- tm_shape(original_shapes) +
 rawplot
 
 
+# To look at different combination shapes
 
 par(mfrow = c(2, 3), mar = c(0, 0, 2, 0))
 for (i in 1:6) {
@@ -92,9 +82,13 @@ for (i in 1:6) {
 }
 
 
+# Actual needed lines to make and assign grid.  
+
 new_cells_hex <- calculate_grid(shape = original_shapes, grid_type = "hexagonal", seed = 7) #5 7  #1 8 10
 resulthex <- assign_polygons(original_shapes, new_cells_hex)
 
+
+# Map new grid in comparison to original map
 
 hexplot <- tm_shape(resulthex) + 
     tm_polygons("ALAND", palette = "viridis") +
@@ -107,11 +101,17 @@ tmap_arrange(rawplot, hexplot,  nrow = 2)
 
 
 
+resulthex2 <- as_Spatial(resulthex)
+
+resulthex3 <- clean(resulthex2)
+
+
+
 # generate plot
-plot_2 <- ggplot(resulthex, aes(long.x,
-                                lat.x,
-                                fill=Value,
-                                group=group)) +
+plot_2 <- ggplot(resulthex3, aes(long,
+                                lat,
+                                fill=ALAND)
+                 ) +
     geom_polygon(col="white") +
     scale_fill_viridis(option="magma") +
     coord_equal() + theme_void()
