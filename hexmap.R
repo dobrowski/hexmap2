@@ -47,13 +47,16 @@ monterey_county <- counties("CA", class = "sf") %>%
 # This line is all districts that are partially in Monterey County, so lots of districts that are mostly in SLO or Santa Cruz, etc.
 
 
-outside_names <- "Reef|Coal|Pajar|Aroma|Shan|Not D|Coast|Paso|Bitter|Pleas|Cien|Jeff|Willow|Benito|Miguel|(9-12)|Joint"
+outside_names <- "Reef|Coal|Pajar|Aroma|Shan|Not D|Coast|Paso|Bitter|Pleas|Cien|Jeff|Willow|Benito|Miguel|(9-12)"
 
  monterey_districts <-  districts %>%
      st_intersection(monterey_tracts) %>%
      filter(!str_detect(NAME, outside_names)) %>%
-     rbind(districts %>% filter(str_detect(NAME, "South Monter") )  ) %>% #  Add SMCJUHSD back in; it is wonky with the st_intersection 
-      st_collection_extract("POLYGON") 
+ #    rbind(districts %>% filter(str_detect(NAME, "South Monter") )  ) %>% #  Add SMCJUHSD back in; it is wonky with the st_intersection 
+      st_collection_extract("POLYGON") %>%
+     mutate(area = st_area(geometry)) %>%
+     mutate(row_n = row_number()) %>%
+     filter(row_n != 23)
 
 
 # monterey_districts <- districts[st_contains(monterey_tracts, districts, sparse = FALSE),] %>%
@@ -89,7 +92,7 @@ for (i in 1:6) {
 }
 
 
-new_cells_hex <- calculate_grid(shape = original_shapes, grid_type = "hexagonal", seed = 1) #1 8 10
+new_cells_hex <- calculate_grid(shape = original_shapes, grid_type = "hexagonal", seed = 7) #5 7  #1 8 10
 resulthex <- assign_polygons(original_shapes, new_cells_hex)
 
 
